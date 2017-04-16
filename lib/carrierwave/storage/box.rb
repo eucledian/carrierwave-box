@@ -66,7 +66,7 @@ module CarrierWave
       private
 
       def link_out(client_id)
-        "https://www.box.com/api/oauth2/authorize?client_id=#{client_id}&redirect_uri=http%3A%2F%2Flocalhost&response_type=code"
+        "https://account.box.com/api/oauth2/authorize?client_id=#{client_id}&redirect_uri=http%3A%2F%2Flocalhost&response_type=code"
       end
 
       def box_client
