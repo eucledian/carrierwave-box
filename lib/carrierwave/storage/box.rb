@@ -11,6 +11,10 @@ module CarrierWave
       # Stubs we must implement to create and save
       attr_reader :client_box
 
+      TOKEN_LISTENER = lambda do |access, refresh_token, identifier|
+        binding.pry
+      end
+
       # Store a single file
       def store!(file)
         @client_box = box_client
@@ -70,35 +74,22 @@ module CarrierWave
       end
 
       def box_client
-        @mechanize = Mechanize.new
-        page = @mechanize.get(link_out(uploader.box_client_id))
-        @mechanize.follow_meta_refresh = true
-        form = page.form
-        form.login = uploader.box_email.to_s
-        form.password = uploader.box_password.to_s
-        page1 = form.submit
-        form1 = page1.form
-        page_next = form1.submit
-        code = page_next.uri.to_s.split('code=').last
-        box_client = Boxr.get_tokens(
-          code,
-          grant_type: 'authorization_code',
-          assertion: nil,
-          scope: nil,
-          username: nil,
-          client_id: uploader.box_client_id,
-          client_secret: uploader.box_client_secret
-        ).access_token
-        Boxr::Client.new(box_client)
+        Boxr::Client.new(config[:box_developer_token])
+      rescue Boxr::BoxrError => e
+        Boxr::Client.new(
+          config[:box_developer_token],
+          refesh_token: '',
+          client_id: config[:box_client_id],
+          client_secret: config[:box_client_secret],
+          &TOKEN_LISTENER
+        )
       end
 
       def config
         @config ||= {}
         @config[:box_client_id] ||= uploader.box_client_id
         @config[:box_client_secret] ||= uploader.box_client_secret
-        @config[:box_email] ||= uploader.box_email
-        @config[:box_password] ||= uploader.box_password
-        @config[:box_access_type] ||= uploader.box_access_type || 'box'
+        @config[:box_developer_token] ||= uploader.box_developer_token
         @config
       end
 
