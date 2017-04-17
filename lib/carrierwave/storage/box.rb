@@ -12,7 +12,11 @@ module CarrierWave
       attr_reader :client_box
 
       TOKEN_LISTENER = lambda do |access, refresh_token, identifier|
-        binding.pry
+        # TODO: save refresh_token
+      end
+
+      def identifier
+        @identifier.id unless @identifier.nil?
       end
 
       # Store a single file
@@ -29,7 +33,7 @@ module CarrierWave
           rescue Boxr::BoxrError => e
           end
           folder_will_up = @client_box.folder_from_path(uploader.store_dir)
-          file_up = @client_box.upload_file(file.to_file, folder_will_up)
+          @identifier = @client_box.upload_file(file.to_file, folder_will_up, name: uploader.filename)
           file
         rescue Boxr::BoxrError => e
           path_folders.each_with_index do |path, index|
@@ -50,20 +54,19 @@ module CarrierWave
           end
 
           folder_will_up = @client_box.folder_from_path(uploader.store_dir)
-          file_up = @client_box.upload_file(file.to_file, uploader.store_dir)
+          @identifier = @client_box.upload_file(file.to_file, uploader.store_dir)
         end
-
+        uploader.box_identifier = @identifier.id
         file
       end
 
       # Retrieve a single file
       def retrieve!(file)
-        @client_box = box_client
         CarrierWave::Storage::Box::File.new(
           uploader,
           config,
           uploader.store_path(file),
-          @client_box
+          box_client
         )
       end
 

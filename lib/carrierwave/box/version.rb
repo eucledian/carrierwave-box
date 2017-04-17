@@ -1,5 +1,5 @@
 module Carrierwave
   module Box
-    VERSION = '0.2.6'.freeze
+    VERSION = '0.3.5'.freeze
   end
 end
