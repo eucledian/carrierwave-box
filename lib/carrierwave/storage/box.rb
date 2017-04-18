@@ -59,6 +59,8 @@ module CarrierWave
 
       # Retrieve a single file
       def retrieve!(file)
+        box_client = uploader.box_client
+        
         CarrierWave::Storage::Box::File.new(
           uploader,
           config,
