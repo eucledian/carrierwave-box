@@ -34,6 +34,8 @@ module CarrierWave
           end
           folder_will_up = @client_box.folder_from_path(uploader.store_dir)
           @identifier = @client_box.upload_file(file.to_file, folder_will_up, name: uploader.filename)
+          # may god have mercy on our soul
+          self.uploader.model.update_column :box_id, @identifier.id
           file
         rescue Boxr::BoxrError => e
           path_folders.each_with_index do |path, index|
