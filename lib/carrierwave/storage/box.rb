@@ -11,17 +11,13 @@ module CarrierWave
       # Stubs we must implement to create and save
       attr_reader :client_box
 
-      TOKEN_LISTENER = lambda do |access, refresh_token, identifier|
-        # TODO: save refresh_token
-      end
-
       def identifier
         @identifier.id unless @identifier.nil?
       end
 
       # Store a single file
       def store!(file)
-        @client_box = box_client
+        @client_box = uploader.box_client
         # if @client_box
         path_folders = uploader.store_dir.split('/')
         begin
@@ -58,7 +54,6 @@ module CarrierWave
           folder_will_up = @client_box.folder_from_path(uploader.store_dir)
           @identifier = @client_box.upload_file(file.to_file, uploader.store_dir)
         end
-        uploader.box_identifier = @identifier.id
         file
       end
 
@@ -76,18 +71,6 @@ module CarrierWave
 
       def link_out(client_id)
         "https://account.box.com/api/oauth2/authorize?client_id=#{client_id}&redirect_uri=http%3A%2F%2Flocalhost&response_type=code"
-      end
-
-      def box_client
-        Boxr::Client.new(config[:box_developer_token])
-      rescue Boxr::BoxrError => e
-        Boxr::Client.new(
-          config[:box_developer_token],
-          refesh_token: '',
-          client_id: config[:box_client_id],
-          client_secret: config[:box_client_secret],
-          &TOKEN_LISTENER
-        )
       end
 
       def config
