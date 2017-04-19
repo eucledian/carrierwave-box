@@ -80,7 +80,6 @@ module CarrierWave
         @config ||= {}
         @config[:box_client_id] ||= uploader.box_client_id
         @config[:box_client_secret] ||= uploader.box_client_secret
-        @config[:box_developer_token] ||= uploader.box_developer_token
         @config
       end
 
